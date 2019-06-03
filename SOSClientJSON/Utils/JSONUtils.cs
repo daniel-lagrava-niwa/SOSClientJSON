@@ -89,5 +89,10 @@ namespace SOSClientJSON.Utils
             Console.WriteLine(jsonValue.ToString());
             Console.WriteLine("-----------------");
         }
+
+        public static String extractTimeSeries(String timeSeriesJsonResult)
+        {
+            return "";
+        }
     }
 }
