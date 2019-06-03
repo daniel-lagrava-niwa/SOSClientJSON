@@ -13,16 +13,7 @@ namespace SOSClientJSON
             var property = "QR"; // This is for Discharge, HG is for Height of Gauge
             var station = "15341"; // ID of the station
             var result = client.PerformTimeSeriesRequest(property, station, startTime, endTime);
-            if (result.Equals("ERROR"))
-            {
-                Console.WriteLine("Request failed");
-            }
-            else
-            {
-                Console.WriteLine("Request Succeeded");
-                Console.WriteLine("Results: ....");
-                Console.WriteLine(result);
-            }
+            Console.WriteLine(result);
             Console.ReadKey();
             
         }

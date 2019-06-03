@@ -10,52 +10,62 @@ namespace SOSClientJSON.Utils
 {
     class JSONUtils
     {
-        public static String buildJSONSOSTestRequest()
+        public static String BuildJSONSOSTestRequest()
         {
-            var requestObject = new JsonObject();
-            requestObject.Add("request", new JsonPrimitive("Hydrometric_Station"));
-            requestObject.Add("service", new JsonPrimitive("SOS"));
-            requestObject.Add("version", new JsonPrimitive("2.0.0"));
-            requestObject.Add("procedure", new JsonPrimitive("Hydrometric_Station"));
-            requestObject.Add("procedureDescriptionFormat", new JsonPrimitive("http://www.opengis.net/sensorML/1.0.1"));
+            var requestObject = new JsonObject
+            {
+                { "request", new JsonPrimitive("Hydrometric_Station") },
+                { "service", new JsonPrimitive("SOS") },
+                { "version", new JsonPrimitive("2.0.0") },
+                { "procedure", new JsonPrimitive("Hydrometric_Station") },
+                { "procedureDescriptionFormat", new JsonPrimitive("http://www.opengis.net/sensorML/1.0.1") }
+            };
             return requestObject.ToString();
         }
 
-        public static String buildTimeSeriesRequest(String procedure, String observedProperty, String featureOfInterest, String[] phenomenonTime)
+        public static String BuildTimeSeriesRequest(String procedure, String observedProperty, String featureOfInterest, String[] phenomenonTime)
         {
-            var requestObject = new JsonObject();
-            requestObject.Add("request", new JsonPrimitive("GetObservation"));
-            requestObject.Add("service", new JsonPrimitive("SOS"));
-            requestObject.Add("version", new JsonPrimitive("2.0.0"));
-            requestObject.Add("procedure", new JsonPrimitive(procedure));
-            requestObject.Add("observedProperty", new JsonPrimitive(observedProperty));
-            requestObject.Add("featureOfInterest", new JsonPrimitive(featureOfInterest));
+            var requestObject = new JsonObject
+            {
+                { "request", new JsonPrimitive("GetObservation") },
+                { "service", new JsonPrimitive("SOS") },
+                { "version", new JsonPrimitive("2.0.0") },
+                { "procedure", new JsonPrimitive(procedure) },
+                { "observedProperty", new JsonPrimitive(observedProperty) },
+                { "featureOfInterest", new JsonPrimitive(featureOfInterest) }
+            };
             var temporalFilterDuring = new JsonObject();
             temporalFilterDuring.Add("ref", new JsonPrimitive("om:phenomenonTime"));
-            JsonArray time = new JsonArray();
-            time.Add(new JsonPrimitive(phenomenonTime[0]));
-            time.Add(new JsonPrimitive(phenomenonTime[1]));
+            JsonArray time = new JsonArray
+            {
+                new JsonPrimitive(phenomenonTime[0]),
+                new JsonPrimitive(phenomenonTime[1])
+            };
             temporalFilterDuring.Add("value", time);
-            var temporalFilter = new JsonObject();
-            temporalFilter.Add("during", temporalFilterDuring);
+            var temporalFilter = new JsonObject
+            {
+                { "during", temporalFilterDuring }
+            };
 
             requestObject.Add("temporalFilter", temporalFilter);
             return requestObject.ToString();
         }
 
-        public static String buildDataAvailabilityRequest(String procedure, String observedProperty, String featureOfInterest)
+        public static String BuildDataAvailabilityRequest(String procedure, String observedProperty, String featureOfInterest)
         {
-            var requestObject = new JsonObject();
-            requestObject.Add("request", new JsonPrimitive("GetDataAvailability"));
-            requestObject.Add("service", new JsonPrimitive("SOS"));
-            requestObject.Add("version", new JsonPrimitive("2.0.0"));
-            requestObject.Add("procedure", new JsonPrimitive(procedure));
-            requestObject.Add("observedProperty", new JsonPrimitive(observedProperty));
-            requestObject.Add("featureOfInterest", new JsonPrimitive(featureOfInterest));
+            var requestObject = new JsonObject
+            {
+                { "request", new JsonPrimitive("GetDataAvailability") },
+                { "service", new JsonPrimitive("SOS") },
+                { "version", new JsonPrimitive("2.0.0") },
+                { "procedure", new JsonPrimitive(procedure) },
+                { "observedProperty", new JsonPrimitive(observedProperty) },
+                { "featureOfInterest", new JsonPrimitive(featureOfInterest) }
+            };
             return requestObject.ToString();
         }
 
-        public static String buildDataAvailabilityRequest(String[] procedures, String[] observedProperties, String[] featuresOfInterest)
+        public static String BuildDataAvailabilityRequest(String[] procedures, String[] observedProperties, String[] featuresOfInterest)
         {
             var requestObject = new JsonObject();
             var proceduresJSON = new JsonArray();
@@ -82,7 +92,7 @@ namespace SOSClientJSON.Utils
         }
 
         // TODO: this will be used to parse the stuff
-        public static void convertToDict(String JsonString)
+        public static void ConvertToDict(String JsonString)
         {
             JsonValue jsonValue = JsonValue.Parse(JsonString);
             Console.WriteLine("---- Ignore -----");
@@ -90,9 +100,32 @@ namespace SOSClientJSON.Utils
             Console.WriteLine("-----------------");
         }
 
-        public static String extractTimeSeries(String timeSeriesJsonResult)
+        public static TimeSeriesObject ExtractTimeSeries(String timeSeriesJsonResult)
         {
-            return "";
+            JsonValue values = JsonValue.Parse(timeSeriesJsonResult);
+            TimeSeriesObject timeSeries = new TimeSeriesObject();
+            var observations = values["observations"][0];
+            if (observations.ContainsKey("featureOfInterest"))
+            {
+                var featureOfInterest = observations["featureOfInterest"];
+                timeSeries.Name = featureOfInterest["name"];
+                var coordinates = featureOfInterest["geometry"]["coordinates"];
+                timeSeries.Coordinates = new Decimal[2] { coordinates[0], coordinates[1] };
+            }
+            if (observations.ContainsKey("result"))
+            {
+                Dictionary<string, Decimal> series = new Dictionary<string, decimal>();
+                var results = observations["result"]["values"];
+                for (int i = 0; i < results.Count; i++)
+                {
+                    var entry = results[i];
+                    series.Add(entry[0], entry[1]);
+                }
+                timeSeries.TimeSeries = series;
+            }
+
+            Console.WriteLine(timeSeries.ToString());
+            return timeSeries;
         }
     }
 }

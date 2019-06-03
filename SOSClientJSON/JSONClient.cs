@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Net.Http;
 using System.Json;
 using System.Diagnostics;
@@ -20,24 +17,25 @@ namespace SOSClientJSON
 
         public String PerformTestRequest()
         {
-            var requestObject = Utils.JSONUtils.buildJSONSOSTestRequest();
+            var requestObject = Utils.JSONUtils.BuildJSONSOSTestRequest();
             var result = PerformRequest(requestObject);
             return result;
         }
 
         public String PerformDataAvailabilityRequest(String observableProperty, String id)
         {
-            var requestObject = Utils.JSONUtils.buildDataAvailabilityRequest("Hydrometric_Station", observableProperty, id);
+            var requestObject = Utils.JSONUtils.BuildDataAvailabilityRequest("Hydrometric_Station", observableProperty, id);
             var result = PerformRequest(requestObject);
             return result;
         }
 
-        public String PerformTimeSeriesRequest(String observableProperty, String id, String startTime, String endTime)
+        public Utils.TimeSeriesObject PerformTimeSeriesRequest(String observableProperty, String id, String startTime, String endTime)
         {
             String[] time = new String[2] { startTime, endTime };
-            var requestObject = Utils.JSONUtils.buildTimeSeriesRequest("Hydrometric_Station", "QR", "91403", time);
+            var requestObject = Utils.JSONUtils.BuildTimeSeriesRequest("Hydrometric_Station", observableProperty, id, time);
             var result = PerformRequest(requestObject);
-            return result;
+            return Utils.JSONUtils.ExtractTimeSeries(result);
+            
         }
 
         public String PerformRequest(String requestObject)
