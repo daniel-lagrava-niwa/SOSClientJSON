@@ -150,7 +150,6 @@ namespace SOSClientJSON.Utils
                 timeSeries.TimeSeries = series;
             }
 
-            Console.WriteLine(timeSeries.ToString());
             return timeSeries;
         }
     }
