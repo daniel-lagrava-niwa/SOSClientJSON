@@ -21,9 +21,26 @@ namespace SOSClientJSON.Utils
             return requestObject.ToString();
         }
 
-        public static String buildTimeSeriesRequest()
+        public static String buildTimeSeriesRequest(String procedure, String observedProperty, String featureOfInterest, String[] phenomenonTime)
         {
-            return "";
+            var requestObject = new JsonObject();
+            requestObject.Add("request", new JsonPrimitive("GetObservation"));
+            requestObject.Add("service", new JsonPrimitive("SOS"));
+            requestObject.Add("version", new JsonPrimitive("2.0.0"));
+            requestObject.Add("procedure", new JsonPrimitive(procedure));
+            requestObject.Add("observedProperty", new JsonPrimitive(observedProperty));
+            requestObject.Add("featureOfInterest", new JsonPrimitive(featureOfInterest));
+            var temporalFilterDuring = new JsonObject();
+            temporalFilterDuring.Add("ref", new JsonPrimitive("om:phenomenonTime"));
+            JsonArray time = new JsonArray();
+            time.Add(new JsonPrimitive(phenomenonTime[0]));
+            time.Add(new JsonPrimitive(phenomenonTime[1]));
+            temporalFilterDuring.Add("value", time);
+            var temporalFilter = new JsonObject();
+            temporalFilter.Add("during", temporalFilterDuring);
+
+            requestObject.Add("temporalFilter", temporalFilter);
+            return requestObject.ToString();
         }
 
         public static String buildDataAvailabilityRequest(String procedure, String observedProperty, String featureOfInterest)
@@ -64,10 +81,13 @@ namespace SOSClientJSON.Utils
             return requestObject.ToString();
         }
 
+        // TODO: this will be used to parse the stuff
         public static void convertToDict(String JsonString)
         {
             JsonValue jsonValue = JsonValue.Parse(JsonString);
+            Console.WriteLine("---- Ignore -----");
             Console.WriteLine(jsonValue.ToString());
+            Console.WriteLine("-----------------");
         }
     }
 }
