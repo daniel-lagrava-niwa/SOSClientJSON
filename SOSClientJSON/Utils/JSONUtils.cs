@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Json;
 
 
 namespace SOSClientJSON.Utils
 {
+    /// <summary>
+    /// Static class that has lots of utilities to create and parse requests to SOS
+    /// </summary>
     class JSONUtils
     {
-        public static String BuildJSONSOSTestRequest()
+        /// <summary>
+        /// Test query to the SOS server
+        /// </summary>
+        /// <returns>String of the query</returns>
+        public static string BuildJSONSOSTestRequest()
         {
             var requestObject = new JsonObject
             {
@@ -23,7 +27,15 @@ namespace SOSClientJSON.Utils
             return requestObject.ToString();
         }
 
-        public static String BuildTimeSeriesRequest(String procedure, String observedProperty, String featureOfInterest, String[] phenomenonTime)
+        /// <summary>
+        /// Creates a request for time series to a SOS server
+        /// </summary>
+        /// <param name="procedure"></param>
+        /// <param name="observedProperty">QR or HG (quantity and height of gauge respectively)</param>
+        /// <param name="featureOfInterest">ID of the sensor</param>
+        /// <param name="phenomenonTime">Array containing start and end time</param>
+        /// <returns></returns>
+        public static string BuildTimeSeriesRequest(string procedure, string observedProperty, string featureOfInterest, string[] phenomenonTime)
         {
             var requestObject = new JsonObject
             {
@@ -34,8 +46,10 @@ namespace SOSClientJSON.Utils
                 { "observedProperty", new JsonPrimitive(observedProperty) },
                 { "featureOfInterest", new JsonPrimitive(featureOfInterest) }
             };
-            var temporalFilterDuring = new JsonObject();
-            temporalFilterDuring.Add("ref", new JsonPrimitive("om:phenomenonTime"));
+            var temporalFilterDuring = new JsonObject
+            {
+                { "ref", new JsonPrimitive("om:phenomenonTime") }
+            };
             JsonArray time = new JsonArray
             {
                 new JsonPrimitive(phenomenonTime[0]),
@@ -51,7 +65,14 @@ namespace SOSClientJSON.Utils
             return requestObject.ToString();
         }
 
-        public static String BuildDataAvailabilityRequest(String procedure, String observedProperty, String featureOfInterest)
+        /// <summary>
+        /// Create a data availability JSON object for a query to SOS
+        /// </summary>
+        /// <param name="procedure"></param>
+        /// <param name="observedProperty">QR or HG (quantity and height of gauge resp.)</param>
+        /// <param name="featureOfInterest">ID of the sensor</param>
+        /// <returns></returns>
+        public static string BuildDataAvailabilityRequest(string procedure, string observedProperty, string featureOfInterest)
         {
             var requestObject = new JsonObject
             {
@@ -65,41 +86,46 @@ namespace SOSClientJSON.Utils
             return requestObject.ToString();
         }
 
-        public static String BuildDataAvailabilityRequest(String[] procedures, String[] observedProperties, String[] featuresOfInterest)
+        /// <summary>
+        /// Create a data availability JSON object for a query to SOS. Variant for multiple procedures, properties and features
+        /// </summary>
+        /// <param name="procedures">Array of procedures</param>
+        /// <param name="observedProperties">Array of properties</param>
+        /// <param name="featuresOfInterest">Array of features of interest</param>
+        /// <returns></returns>
+        public static string BuildDataAvailabilityRequest(string[] procedures, string[] observedProperties, string[] featuresOfInterest)
         {
-            var requestObject = new JsonObject();
             var proceduresJSON = new JsonArray();
             var observedPropsJSON = new JsonArray();
             var featuresJSON = new JsonArray();
-            foreach (String procedure in procedures) {
+            foreach (string procedure in procedures) {
                 proceduresJSON.Add(new JsonPrimitive(procedure));
             }
-            foreach (String property in observedProperties)
+            foreach (string property in observedProperties)
             {
                 proceduresJSON.Add(new JsonPrimitive(property));
             }
-            foreach (String feature in featuresOfInterest)
+            foreach (string feature in featuresOfInterest)
             {
                 proceduresJSON.Add(new JsonPrimitive(feature));
             }
-            requestObject.Add("request", new JsonPrimitive("GetDataAvailability"));
-            requestObject.Add("service", new JsonPrimitive("SOS"));
-            requestObject.Add("version", new JsonPrimitive("2.0.0"));
-            requestObject.Add("procedure", proceduresJSON);
-            requestObject.Add("observedProperty", observedPropsJSON);
-            requestObject.Add("featureOfInterest", featuresJSON);
+            var requestObject = new JsonObject
+            {
+                { "request", new JsonPrimitive("GetDataAvailability") },
+                { "service", new JsonPrimitive("SOS") },
+                { "version", new JsonPrimitive("2.0.0") },
+                { "procedure", proceduresJSON },
+                { "observedProperty", observedPropsJSON },
+                { "featureOfInterest", featuresJSON }
+            };
             return requestObject.ToString();
         }
 
-        // TODO: this will be used to parse the stuff
-        public static void ConvertToDict(String JsonString)
-        {
-            JsonValue jsonValue = JsonValue.Parse(JsonString);
-            Console.WriteLine("---- Ignore -----");
-            Console.WriteLine(jsonValue.ToString());
-            Console.WriteLine("-----------------");
-        }
-
+        /// <summary>
+        /// Create a TimeSeriesObject having a name, coordinates and time series from a JSON query result
+        /// </summary>
+        /// <param name="timeSeriesJsonResult">Input JSON having the result of a time series query</param>
+        /// <returns>A TimeSeriesObject</returns>
         public static TimeSeriesObject ExtractTimeSeries(String timeSeriesJsonResult)
         {
             JsonValue values = JsonValue.Parse(timeSeriesJsonResult);

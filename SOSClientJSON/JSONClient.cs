@@ -1,44 +1,71 @@
 ﻿using System;
 using System.Text;
 using System.Net.Http;
-using System.Json;
-using System.Diagnostics;
 
 namespace SOSClientJSON
 {
+    /// <summary>
+    /// Class for a JSON client to perform requests to the SOS server
+    /// </summary>
     public class JSONClient
     {
-        private String BaseURL;
+        private readonly string BaseURL;
 
-        public JSONClient(String BaseURL)
+        /// <summary>
+        /// Create a new instance of JSONClient
+        /// </summary>
+        /// <param name="BaseURL">URL that will be used for the queries</param>
+        public JSONClient(string BaseURL)
         {
             this.BaseURL = BaseURL;
         }
-
-        public String PerformTestRequest()
+        /// <summary>
+        /// This returns the JSON corresponding to a simple test request
+        /// </summary>
+        /// <returns></returns>
+        public string PerformTestRequest()
         {
             var requestObject = Utils.JSONUtils.BuildJSONSOSTestRequest();
             var result = PerformRequest(requestObject);
             return result;
         }
 
-        public String PerformDataAvailabilityRequest(String observableProperty, String id)
+        /// <summary>
+        /// Create a data availability type of request
+        /// </summary>
+        /// <param name="observableProperty"></param>
+        /// <param name="id"></param>
+        /// <returns>JSON string for the query</returns>
+        public string PerformDataAvailabilityRequest(string observableProperty, string id)
         {
             var requestObject = Utils.JSONUtils.BuildDataAvailabilityRequest("Hydrometric_Station", observableProperty, id);
             var result = PerformRequest(requestObject);
             return result;
         }
 
-        public Utils.TimeSeriesObject PerformTimeSeriesRequest(String observableProperty, String id, String startTime, String endTime)
+        /// <summary>
+        /// Perform a time series type of request to the SOS server. Everything gets packed on a TimeSeriesObject
+        /// </summary>
+        /// <param name="observableProperty"></param>
+        /// <param name="id"></param>
+        /// <param name="startTime"></param>
+        /// <param name="endTime"></param>
+        /// <returns></returns>
+        public Utils.TimeSeriesObject PerformTimeSeriesRequest(string observableProperty, string id, string startTime, string endTime)
         {
-            String[] time = new String[2] { startTime, endTime };
+            string[] time = new string[2] { startTime, endTime };
             var requestObject = Utils.JSONUtils.BuildTimeSeriesRequest("Hydrometric_Station", observableProperty, id, time);
             var result = PerformRequest(requestObject);
             return Utils.JSONUtils.ExtractTimeSeries(result);
             
         }
 
-        public String PerformRequest(String requestObject)
+        /// <summary>
+        /// The actual request to the server POSTing the request object. TODO: there is no exception handling
+        /// </summary>
+        /// <param name="requestObject"></param>
+        /// <returns></returns>
+        public string PerformRequest(string requestObject)
         {
             HttpClient httpClient = new HttpClient();
             var content = new StringContent(requestObject, Encoding.UTF8, "application/json");

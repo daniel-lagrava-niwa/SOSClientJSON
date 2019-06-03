@@ -1,8 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace SOSClientJSON.Utils
 {
+    /// <summary>
+    /// This class is a holder for data from a time series request to the SOS server
+    /// </summary>
     public class TimeSeriesObject
     {
         public string Name { get; set; }
