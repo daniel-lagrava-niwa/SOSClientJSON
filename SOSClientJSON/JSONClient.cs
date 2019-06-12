@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using System.Net.Http;
 
 namespace SOSClientJSON
@@ -19,6 +18,7 @@ namespace SOSClientJSON
         {
             this.BaseURL = BaseURL;
         }
+
         /// <summary>
         /// This returns the JSON corresponding to a simple test request
         /// </summary>
@@ -58,6 +58,13 @@ namespace SOSClientJSON
             var result = PerformRequest(requestObject);
             return Utils.JSONUtils.ExtractTimeSeries(result);
             
+        }
+
+        public Utils.StationsData PerformCapabilitiesRequest()
+        {
+            string requestObject = Utils.JSONUtils.BuildGetCapabilitiesRequest();
+            var result = PerformRequest(requestObject);
+            return Utils.JSONUtils.ExtractStationData(result);
         }
 
         /// <summary>
