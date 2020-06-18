@@ -18,11 +18,8 @@ namespace SOSClientJSON.Utils
         {
             var requestObject = new JsonObject
             {
-                { "request", new JsonPrimitive("Hydrometric_Station") },
+                { "request", new JsonPrimitive("GetCapabilities") },
                 { "service", new JsonPrimitive("SOS") },
-                { "version", new JsonPrimitive("2.0.0") },
-                { "procedure", new JsonPrimitive("Hydrometric_Station") },
-                { "procedureDescriptionFormat", new JsonPrimitive("http://www.opengis.net/sensorML/1.0.1") }
             };
             return requestObject.ToString();
         }
@@ -31,7 +28,7 @@ namespace SOSClientJSON.Utils
         /// Creates a request for time series to a SOS server
         /// </summary>
         /// <param name="procedure"></param>
-        /// <param name="observedProperty">QR or HG (quantity and height of gauge respectively)</param>
+        /// <param name="observedProperty">The property we want to extract</param>
         /// <param name="featureOfInterest">ID of the sensor</param>
         /// <param name="phenomenonTime">Array containing start and end time</param>
         /// <returns></returns>
@@ -140,6 +137,7 @@ namespace SOSClientJSON.Utils
             }
             if (observations.ContainsKey("result"))
             {
+                // TODO: this code assumes that the resulting time-series have been aggregated.
                 Dictionary<string, Decimal> series = new Dictionary<string, decimal>();
                 var results = observations["result"]["values"];
                 for (int i = 0; i < results.Count; i++)

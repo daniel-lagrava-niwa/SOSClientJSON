@@ -23,7 +23,7 @@ namespace SOSClientJSON
         /// This returns the JSON corresponding to a simple test request
         /// </summary>
         /// <returns></returns>
-        public string PerformTestRequest()
+        public string PerformTestRequest(string procedure)
         {
             var requestObject = Utils.JSONUtils.BuildJSONSOSTestRequest();
             var result = PerformRequest(requestObject);
@@ -36,9 +36,9 @@ namespace SOSClientJSON
         /// <param name="observableProperty"></param>
         /// <param name="id"></param>
         /// <returns>JSON string for the query</returns>
-        public string PerformDataAvailabilityRequest(string observableProperty, string id)
+        public string PerformDataAvailabilityRequest(string procedure, string observableProperty, string id)
         {
-            var requestObject = Utils.JSONUtils.BuildDataAvailabilityRequest("Hydrometric_Station", observableProperty, id);
+            var requestObject = Utils.JSONUtils.BuildDataAvailabilityRequest(procedure, observableProperty, id);
             var result = PerformRequest(requestObject);
             return result;
         }
@@ -78,6 +78,7 @@ namespace SOSClientJSON
             }
             else
             {
+                // TODO: catch exceptions above, this is just a placeholder
                 result = "ERROR";
             }
             return result;
