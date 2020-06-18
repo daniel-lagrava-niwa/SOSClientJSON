@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Json;
+using System.Text.RegularExpressions;
 
 
 namespace SOSClientJSON.Utils
@@ -84,6 +85,22 @@ namespace SOSClientJSON.Utils
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public static string BuildGetCapabilitiesRequest()
+        {
+            var requestObject = new JsonObject
+            {
+                { "request", new JsonPrimitive("GetCapabilities") },
+                { "service", new JsonPrimitive("SOS") },
+                { "sections", new JsonArray( new JsonValue[] { new JsonPrimitive("Contents") } ) }
+            };
+            return requestObject.ToString();
+        }
+
+
+        /// <summary>
         /// Create a data availability JSON object for a query to SOS. Variant for multiple procedures, properties and features
         /// </summary>
         /// <param name="procedures">Array of procedures</param>
@@ -119,11 +136,52 @@ namespace SOSClientJSON.Utils
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="capabilitiesResult"></param>
+        /// <returns></returns>
+        public static StationsData ExtractStationData(string capabilitiesResult)
+        {
+            JsonValue values = JsonValue.Parse(capabilitiesResult);
+            StationsData stationsData = new StationsData();
+            if (values.ContainsKey("contents"))
+            {
+                var contents = values["contents"];
+                for (int i = 0; i < contents.Count; i++)
+                {
+                    var entry = contents[i];
+                    var identifier = entry["identifier"].ToString().Trim(new char[] { '"' });
+                    var property = identifier.Split('.')[0];
+                    var station = identifier.Split('@')[1];
+
+                    if (stationsData.HasStation(station))
+                    {
+                        stationsData.AddCapabilityToExistingStation(station, property);
+                    }
+                    else
+                    {
+                        if (entry.ContainsKey("observedArea"))
+                        {
+                            var location = entry["observedArea"]["lowerLeft"];
+                            var longitude = location[1];
+                            var latitude = location[0];
+                            stationsData.AddNewStation(station, latitude, longitude, property);
+                        }
+                    }
+                }
+            }
+
+            Console.WriteLine(stationsData);
+            return stationsData;
+        }
+
+
+        /// <summary>
         /// Create a TimeSeriesObject having a name, coordinates and time series from a JSON query result
         /// </summary>
         /// <param name="timeSeriesJsonResult">Input JSON having the result of a time series query</param>
         /// <returns>A TimeSeriesObject</returns>
-        public static TimeSeriesObject ExtractTimeSeries(String timeSeriesJsonResult)
+        public static TimeSeriesObject ExtractTimeSeries(string timeSeriesJsonResult)
         {
             JsonValue values = JsonValue.Parse(timeSeriesJsonResult);
             TimeSeriesObject timeSeries = new TimeSeriesObject();
